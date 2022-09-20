@@ -1,0 +1,15 @@
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\bin\Debug\net6.0\Semantica.exe
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\bin\Debug\net6.0\Semantica.deps.json
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\bin\Debug\net6.0\Semantica.runtimeconfig.json
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\bin\Debug\net6.0\Semantica.dll
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\bin\Debug\net6.0\Semantica.pdb
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.csproj.AssemblyReference.cache
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.AssemblyInfoInputs.cache
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.AssemblyInfo.cs
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.csproj.CoreCompileInputs.cache
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.dll
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\refint\Semantica.dll
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.pdb
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\Semantica.genruntimeconfig.cache
+C:\Users\carlo\Documents\ITQ\7\Automatas\Proyecto\Semantica\obj\Debug\net6.0\ref\Semantica.dll
