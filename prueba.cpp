@@ -5,7 +5,7 @@ float area, radio, pi, resultado;
 int a, d;
 // Este programa calcula el volumen de un cilindro.
 void main(){
-    printf("\n\n\n\t\tHolaaaaaaaaa");
+    printf("\n\n\n\t\tHolaaaaaaaa");
     printf("\n\n\tRadio =  ");
     scanf("%d", &radio);
     pi = 3.141592653589793;
