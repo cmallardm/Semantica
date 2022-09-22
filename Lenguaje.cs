@@ -14,9 +14,11 @@ namespace Semantica
 
         Stack<float> stack = new Stack<float>();
 
+        Variable.TipoDato dominante;
+
         public Lenguaje()
         {
-            
+
         }
         public Lenguaje(string nombre) : base(nombre)
         {
@@ -220,7 +222,11 @@ namespace Semantica
 
         private Variable.TipoDato evaluaNumero(float resultado)
         {
-            if(resultado <= 255)
+            if (resultado % 1 != 0)
+            {
+                return Variable.TipoDato.Float;
+            }
+            if (resultado <= 255)
             {
                 return Variable.TipoDato.Char;
             }
@@ -228,7 +234,7 @@ namespace Semantica
             {
                 return Variable.TipoDato.Int;
             }
-            return Variable.TipoDato.Char;
+            return Variable.TipoDato.Float;
         }
         private bool evaluaSemantica(string variable, float resultado)
         {
@@ -247,12 +253,25 @@ namespace Semantica
                 throw new Error("Error : No existe la variable \'" + getContenido() + "\' en linea: " + linea, log);
             match(Tipos.Identificador);
             match(Tipos.Asignacion);
+            dominante = Variable.TipoDato.Char;
             Expresion();
             match(";");
             float resultado = stack.Pop();
             log.Write("= " + resultado);
             log.WriteLine();
-            modVariable(nombre, resultado);
+            if (dominante < evaluaNumero(resultado))
+            {
+                dominante =  evaluaNumero(resultado);
+            }
+            if (dominante <= getTipo(nombre)) 
+            {
+                modVariable(nombre, resultado);
+            }
+            else
+            {
+                throw new Error("Error de semantica: no podemos asignar un: <" + dominante + "> a un <" + getTipo(nombre) + "> en linea " + linea, log);
+            }
+
         }
 
 
@@ -532,6 +551,10 @@ namespace Semantica
             if (getClasificacion() == Tipos.Numero)
             {
                 log.Write(getContenido() + " ");
+                if (dominante < evaluaNumero(float.Parse(getContenido())))
+                {
+                    dominante = evaluaNumero(float.Parse(getContenido()));
+                }
                 stack.Push(float.Parse(getContenido()));
                 match(Tipos.Numero);
             }

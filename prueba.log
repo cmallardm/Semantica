@@ -1,3 +1,5 @@
 Archivo: prueba.cpp
-9/19/2022 9:30:26 AM
-Error de sintaxis, se espera un FinSentencia en linea: 7
+9/21/2022 9:56:08 AM
+
+x = 1.5 1 + = 2.5
+Error de semantica: no podemos asignar un: <Float> a un <Char> en linea 10

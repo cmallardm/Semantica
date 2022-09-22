@@ -10,9 +10,6 @@ namespace Semantica
             try
             {
                 Lenguaje a = new Lenguaje();
-
-                //Nausdhsdgiokjsdkjnsdf
-                
                 a.Programa();
 
                 /*a.match("#");
