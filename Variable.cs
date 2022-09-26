@@ -1,3 +1,5 @@
+//  Carlos Mallard
+
 namespace Semantica
 {
     public class Variable

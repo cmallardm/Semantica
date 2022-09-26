@@ -1,3 +1,5 @@
+//  Carlos Mallard
+
 using System;
 
 namespace Semantica
@@ -13,7 +15,7 @@ namespace Semantica
             NextToken();
         }
 
-        public void match(String espera)
+        public void match(string espera)
         {
             if (espera == getContenido())
             {

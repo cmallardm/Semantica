@@ -6,7 +6,7 @@ int a, d;
 char x;
 // Este programa calcula el volumen de un cilindro.
 void main(){
-    x = 1.5 + 1;
+    x = (char)(256);
     printf("\n\n\n\t\tHolaaaaaaaa");
     printf("\n\n\tRadio =  ");
     scanf("%d", &radio);
