@@ -90,6 +90,19 @@ namespace Semantica
             }
             return Variable.TipoDato.Char; // nomás pa'que no marque error (porque nunca va a pasar, antes se levanta error)
         }
+
+        private float convert(float valor, string dato)
+        {
+            switch (dato)
+            {
+                case "char":
+                    return valor % 255;
+                case "int":
+                    return valor % 65535;
+                default:
+                    return valor;
+            }
+        }
         //Programa  -> Librerias? Variables? Main
         public void Programa()
         {
@@ -124,11 +137,13 @@ namespace Semantica
             if (getClasificacion() == Tipos.TipoDato)
             {
                 Variable.TipoDato tipo = Variable.TipoDato.Char;
+
                 switch (getContenido())
                 {
                     case "int": tipo = Variable.TipoDato.Int; break;
                     case "float": tipo = Variable.TipoDato.Float; break;
                 }
+
                 match(Tipos.TipoDato);
                 Lista_identificadores(tipo);
                 match(Tipos.FinSentencia);
@@ -150,7 +165,9 @@ namespace Semantica
                     throw new Error("Error de sintaxis, variable duplicada <" + getContenido() + "> en linea: " + linea, log);
                 }
             }
+
             match(Tipos.Identificador);
+
             if (getContenido() == ",")
             {
                 match(",");
@@ -242,7 +259,7 @@ namespace Semantica
             {
                 return Variable.TipoDato.Float;
             }
-            if (resultado <= 255)
+            else if (resultado <= 255)
             {
                 return Variable.TipoDato.Char;
             }
@@ -261,20 +278,24 @@ namespace Semantica
         //Asignacion -> identificador = cadena | Expresion;
         private void Asignacion(bool evaluacion)
         {
-            //Requerimiento 2.- Si no existe la variable levanta la excepcion
+            //Requerimiento 2.- Si no existe la variable levanta la excepcion*
+
             log.WriteLine();
             log.Write(getContenido() + " = ");
             string nombre = getContenido();
+
             if (!existeVariable(getContenido()))
                 throw new Error("Error : No existe la variable \'" + getContenido() + "\' en linea: " + linea, log);
+
             match(Tipos.Identificador);
             match(Tipos.Asignacion);
-            dominante = Variable.TipoDato.Char;
-            Expresion();
             match(";");
+
             float resultado = stack.Pop();
+
             log.Write("= " + resultado);
             log.WriteLine();
+
             if (dominante < evaluaNumero(resultado))
             {
                 dominante = evaluaNumero(resultado);
@@ -292,7 +313,6 @@ namespace Semantica
             }
 
         }
-
 
         // While -> while(Condicion) bloque de instrucciones | instruccion
         private void While(bool evaluacion)
@@ -528,14 +548,14 @@ namespace Semantica
             match(Tipos.Cadena);
             match(",");
             match("&");
-            // Requerimiento 2.- Si no existe la variable levanta la excepcion
+            // Requerimiento 2.- Si no existe la variable levanta la excepcion *
             if (!existeVariable(getContenido()))
                 throw new Error("Error : No existe variable \'" + getContenido() + "\' en linea: " + linea, log);
-            string val = "" + Console.ReadLine();
             // Requerimiento 5.- Modificar el valor de la variable *
             match(Tipos.Identificador);
             if (evaluacion)
             {
+                string val = "" + Console.ReadLine();
                 modVariable(getContenido(), float.Parse(val));
             }
             match(")");
@@ -544,6 +564,7 @@ namespace Semantica
         //Expresion -> Termino MasTermino
         private void Expresion()
         {
+            
             Termino();
             MasTermino();
         }
@@ -653,11 +674,13 @@ namespace Semantica
                 match(")");
                 if (huboCasteo)
                 {
+                    float variable = stack.Pop();
+                    stack.Push(convert(variable, casteo.ToString()));
+
                     // Requerimiento 2.- Saco un elemento del stack
                     //                   Convierto ese valor al equialente en casteo
                     // Requerimiento 3.- Ej. Si el casteo es (char) y el pop regresa un 256
                     //                   el valor equivalente en casteo es 0
-
                 }
             }
         }
