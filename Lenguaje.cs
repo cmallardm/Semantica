@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 
 // Requerimiento 1.- Actualizar el dominante para variables en la expresión
-//                   Ejemplo float x; char y; y = x;
-// Requerimiento 2.- Actualziar el dominante para el casteo y el valor de la subexpresion
+//                   Ejemplo float x; char y; y = x; *
+// Requerimiento 2.- Actualziar el dominante para el casteo y el valor de la subexpresion *
 // Requerimiento 3.- Programar un método de conversión de un valor a un tipo de dato
 //                   Ej. private float convert(float valor, string TipoDato)
-//                   Deberán usar el residuo de la divisón %255 %65535 
+//                   Deberán usar el residuo de la divisón %255 %65535 *
 // Requerimiento 4.- Evaluar nuevamente la condición del if - else, 
-//                   while, for, do while con respecto al parametro que reciben
+//                   while, for, do while con respecto al parametro que reciben *
 // Requerimiento 5.- Levantar una excepción en el scanf cuando la captura no sea un número
 // Requerimiento 6.- Ejecutar el For();
 namespace Semantica
@@ -95,9 +95,9 @@ namespace Semantica
         {
             switch (dato)
             {
-                case "char":
-                    return valor % 255;
-                case "int":
+                case "Char":
+                    return valor % 256;
+                case "Int":
                     return valor % 65535;
                 default:
                     return valor;
@@ -289,6 +289,8 @@ namespace Semantica
 
             match(Tipos.Identificador);
             match(Tipos.Asignacion);
+            dominante = Variable.TipoDato.Char;
+            Expresion();
             match(";");
 
             float resultado = stack.Pop();
@@ -320,6 +322,10 @@ namespace Semantica
             match("while");
             match("(");
             bool validarWhile = Condicion();
+            if (!evaluacion)
+            {
+                validarWhile = evaluacion;
+            }
             // Requerimiento 4
             match(")");
             if (getContenido() == "{")
@@ -348,6 +354,10 @@ namespace Semantica
             match("(");
             // Requerimiento 4
             bool validarDo = Condicion();
+            if (!evaluacion)
+            {
+                validarDo = evaluacion;
+            }
             match(")");
             match(";");
         }
@@ -360,24 +370,28 @@ namespace Semantica
             // Requerimiento 4
             // Requerimiento 6:
             // a) Necesito guardar la posición del archivo del texto
-            
-            bool valdarFor = Condicion();
-            // b) Agregar un ciclo while, después del valdarFor()
+
+            bool validarFor = Condicion();
+            if (!evaluacion)
+            {
+                validarFor = evaluacion;
+            }
+            // b) Agregar un ciclo while, después del validarFor()
             // while(valdarFor)
             // {
-                match(";");
-                Incremento(evaluacion);
-                match(")");
-                if (getContenido() == "{")
-                {
-                    BloqueInstrucciones(evaluacion);
-                }
-                else
-                {
-                    Instruccion(evaluacion);
-                }
-                // c) Regresar a la posicion de lectura del archivo
-                // d) Sacar otro valor de la pila
+            match(";");
+            Incremento(evaluacion);
+            match(")");
+            if (getContenido() == "{")
+            {
+                BloqueInstrucciones(evaluacion);
+            }
+            else
+            {
+                Instruccion(evaluacion);
+            }
+            // c) Regresar a la posicion de lectura del archivo
+            // d) Sacar otro valor de la pila
             //}    
         }
 
@@ -485,6 +499,10 @@ namespace Semantica
             match("(");
             // Requerimiento 4 
             bool validarIf = Condicion();
+            if (!evaluacion)
+            {
+                validarIf = evaluacion;
+            }
             match(")");
             if (getContenido() == "{")
             {
@@ -504,7 +522,7 @@ namespace Semantica
                 }
                 else
                 {
-                    Instruccion(validarIf);
+                    Instruccion(!validarIf);
                 }
             }
         }
@@ -516,7 +534,7 @@ namespace Semantica
             match("(");
             if (getClasificacion() == Tipos.Cadena)
             {
-                // Requerimiento 1
+                // Requerimiento 1 *
                 if (evaluacion)
                 {
                     setContenido(getContenido().Substring(1, getContenido().Length - 2));
@@ -556,15 +574,36 @@ namespace Semantica
             if (evaluacion)
             {
                 string val = "" + Console.ReadLine();
-                modVariable(getContenido(), float.Parse(val));
+                if (esNumero(val))
+                {
+                    modVariable(getContenido(), float.Parse(val));
+                }
+                else
+                {
+                    throw new Error("Error de sintaxis: la variable debe ser un numero. \'" + val + "\' no es un numero. Error en linea: " + linea, log);
+                }
             }
             match(")");
             match(";");
         }
+ 
+        //método que verifica si es numero en un try catch
+        private bool esNumero(string s)
+        {
+            bool resultado = false;
+            try
+            {
+                float flotante = float.Parse(s);
+                resultado = true;
+            }
+            catch { }
+            
+            return resultado;
+        }
         //Expresion -> Termino MasTermino
         private void Expresion()
         {
-            
+
             Termino();
             MasTermino();
         }
@@ -675,6 +714,7 @@ namespace Semantica
                 if (huboCasteo)
                 {
                     float variable = stack.Pop();
+                    dominante = casteo;
                     stack.Push(convert(variable, casteo.ToString()));
 
                     // Requerimiento 2.- Saco un elemento del stack
