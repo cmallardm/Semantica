@@ -371,28 +371,52 @@ namespace Semantica
             // Requerimiento 6:
             // a) Necesito guardar la posición del archivo del texto
 
-            bool validarFor = Condicion();
-            if (!evaluacion)
+            bool validarFor;
+
+            int posicionGuardada = contador;
+            int lineaGuardada = linea;
+            string variable = getContenido();
+            do
             {
-                validarFor = evaluacion;
+                validarFor = Condicion();
+                if (!evaluacion)
+                {
+                    validarFor = evaluacion;
+                }
+                // b) Agregar un ciclo while, después del validarFor() * 
+
+                match(";");
+                int sumaresta = IncrementoSintaxis(evaluacion);
+                match(")");
+                if (getContenido() == "{")
+                {
+                    BloqueInstrucciones(validarFor);
+                }
+                else
+                {
+                    Instruccion(validarFor);
+                }
+                // c) Regresar a la posicion de lectura del archivo
+                // d) Sacar otro valor de la pila
+                if (validarFor)
+                {
+                    if(sumaresta == 1)
+                    {
+                        modVariable(variable, getValor(variable) + 1);
+                    }
+                    else if(sumaresta == -1)
+                    {
+                        modVariable(variable, getValor(variable) - 1);
+                    }
+                    contador = posicionGuardada - variable.Length;
+                    linea = lineaGuardada;
+                    archivo.DiscardBufferedData();
+                    archivo.BaseStream.Seek(contador, SeekOrigin.Begin);
+
+                    NextToken();
+                }
             }
-            // b) Agregar un ciclo while, después del validarFor()
-            // while(valdarFor)
-            // {
-            match(";");
-            Incremento(evaluacion);
-            match(")");
-            if (getContenido() == "{")
-            {
-                BloqueInstrucciones(evaluacion);
-            }
-            else
-            {
-                Instruccion(evaluacion);
-            }
-            // c) Regresar a la posicion de lectura del archivo
-            // d) Sacar otro valor de la pila
-            //}    
+            while (validarFor);
         }
 
         //Incremento -> Identificador ++ | --
@@ -402,10 +426,10 @@ namespace Semantica
             //Requerimiento 2.- Si no existe la variable levanta la excepcion
             if (!existeVariable(getContenido()))
                 throw new Error("Error : No existe variable \'" + getContenido() + "\' en linea: " + linea, log);
-            match(Tipos.Identificador);
+            NextToken();
             if (getContenido() == "++")
             {
-                match("++");
+                NextToken();
                 if (evaluacion)
                 {
                     modVariable(variable, getValor(variable) + 1);
@@ -413,12 +437,31 @@ namespace Semantica
             }
             if (getContenido() == "--")
             {
-                match("--");
+                NextToken();
                 if (evaluacion)
                 {
                     modVariable(variable, getValor(variable) - 1);
                 }
             }
+        }
+        private int IncrementoSintaxis(bool evaluacion)
+        {
+            string variable = getContenido();
+            //Requerimiento 2.- Si no existe la variable levanta la excepcion
+            if (!existeVariable(getContenido()))
+                throw new Error("Error : No existe variable \'" + getContenido() + "\' en linea: " + linea, log);
+            match(Tipos.Identificador);
+            if (getContenido() == "++")
+            {
+                match("++");
+                return 1;
+            }
+            if (getContenido() == "--")
+            {
+                match("--");
+                return -1;
+            }
+            return 0;
         }
 
         //Switch -> switch (Expresion) {Lista de casos} | (default: )
@@ -473,8 +516,9 @@ namespace Semantica
             string operador = getContenido();
             match(Tipos.OperadorRelacional);
             Expresion();
-            float e1 = stack.Pop();
             float e2 = stack.Pop();
+            float e1 = stack.Pop();
+            
             switch (operador)
             {
                 case "==":
@@ -586,7 +630,7 @@ namespace Semantica
             match(")");
             match(";");
         }
- 
+
         //método que verifica si es numero en un try catch
         private bool esNumero(string s)
         {
@@ -597,7 +641,7 @@ namespace Semantica
                 resultado = true;
             }
             catch { }
-            
+
             return resultado;
         }
         //Expresion -> Termino MasTermino

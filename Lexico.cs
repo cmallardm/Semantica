@@ -6,12 +6,12 @@ namespace Semantica
 {
     public class Lexico : Token
     {
-        StreamReader archivo;
+        public StreamReader archivo;
         protected StreamWriter log;
         const int F = -1;
         const int E = -2;
         protected int linea;
-        protected int posicion;
+        protected int contador;
         int[,] TRAND = new int[,]
         {
             //WS,EF,EL,L, D, .,	E, +, -, =,	:, ;, &, |,	!, >, <, *,	%, /, ", ?,La, ', #
@@ -284,7 +284,7 @@ namespace Semantica
                 if (estado >= 0)
                 {
                     archivo.Read();
-                    posicion = posicion + 1;	
+                    contador = contador + 1;
                     if (c == '\n')
                     {
                         linea++;
