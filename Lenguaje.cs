@@ -3,16 +3,8 @@
 using System;
 using System.Collections.Generic;
 
-// Requerimiento 1.- Actualizar el dominante para variables en la expresión
-//                   Ejemplo float x; char y; y = x; *
-// Requerimiento 2.- Actualziar el dominante para el casteo y el valor de la subexpresion *
-// Requerimiento 3.- Programar un método de conversión de un valor a un tipo de dato
-//                   Ej. private float convert(float valor, string TipoDato)
-//                   Deberán usar el residuo de la divisón %255 %65535 *
-// Requerimiento 4.- Evaluar nuevamente la condición del if - else, 
-//                   while, for, do while con respecto al parametro que reciben *
-// Requerimiento 5.- Levantar una excepción en el scanf cuando la captura no sea un número
-// Requerimiento 6.- Ejecutar el For();
+
+
 namespace Semantica
 {
     public class Lenguaje : Sintaxis
@@ -23,13 +15,14 @@ namespace Semantica
 
         Variable.TipoDato dominante;
 
+        int cIF;
         public Lenguaje()
         {
-
+            cIF = 0;
         }
         public Lenguaje(string nombre) : base(nombre)
         {
-
+            cIF = 0;
         }
 
         private void addVariable(String nombre, Variable.TipoDato tipo)
@@ -539,6 +532,7 @@ namespace Semantica
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
         private void If(bool evaluacion)
         {
+            string etquietaIF = "if" + ++cIF;
             match("if");
             match("(");
             // Requerimiento 4 
@@ -556,6 +550,7 @@ namespace Semantica
             {
                 Instruccion(validarIf);
             }
+
             if (getContenido() == "else")
             {
                 match("else");
@@ -569,6 +564,7 @@ namespace Semantica
                     Instruccion(!validarIf);
                 }
             }
+            asm.WriteLine(etquietaIF + ":");
         }
 
         //Printf -> printf(cadena|expresion);
@@ -767,6 +763,11 @@ namespace Semantica
                     //                   el valor equivalente en casteo es 0
                 }
             }
+        }
+        ~Lenguaje()
+        {
+            Console.WriteLine("Destructor");
+            cerrar();
         }
     }
 }

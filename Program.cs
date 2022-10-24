@@ -21,17 +21,16 @@ namespace Semantica
                 a.match(".");
                 a.match("h");
                 a.match(">"); */
-
                 //while(!a.FinArchivo())
                 //{
                 //a.NextToken();
                 //}
-                a.cerrar();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
+            
         }
     }
 }
