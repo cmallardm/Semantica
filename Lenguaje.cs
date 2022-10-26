@@ -1,5 +1,10 @@
 //  Carlos Mallard
 
+//                   c) Programar el printf y el scanf en ensamblador 
+// Requerimiento 4.- a) Programar el else en ensamblador 
+//                   b) Programar el for en ensamblador
+// Requerimiento 5.- a) Programar el while en ensamblador
+//                   b) Programar el do-while en ensamblador
 using System;
 using System.Collections.Generic;
 
@@ -16,13 +21,15 @@ namespace Semantica
         Variable.TipoDato dominante;
 
         int cIF;
+        int cFOR;
         public Lenguaje()
         {
-            cIF = 0;
+            cIF = cFOR = 0;
+
         }
         public Lenguaje(string nombre) : base(nombre)
         {
-            cIF = 0;
+            cIF = cFOR = 0;
         }
 
         private void addVariable(String nombre, Variable.TipoDato tipo)
@@ -306,6 +313,8 @@ namespace Semantica
             {
                 throw new Error("Error de semantica: no podemos asignar un: <" + dominante + "> a un <" + getTipo(nombre) + "> en linea " + linea, log);
             }
+            
+            asm.WriteLine("MOV " + nombre + ", AX");
 
         }
 
@@ -314,7 +323,7 @@ namespace Semantica
         {
             match("while");
             match("(");
-            bool validarWhile = Condicion();
+            bool validarWhile = Condicion("");
             if (!evaluacion)
             {
                 validarWhile = evaluacion;
@@ -346,7 +355,7 @@ namespace Semantica
             match("while");
             match("(");
             // Requerimiento 4
-            bool validarDo = Condicion();
+            bool validarDo = Condicion("");
             if (!evaluacion)
             {
                 validarDo = evaluacion;
@@ -357,6 +366,9 @@ namespace Semantica
         // For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
         private void For(bool evaluacion)
         {
+            string etquietaInicioFOR = "inicioFor" + cFOR;
+            string etquietaFinFOR = "finFor" + cFOR++;
+            asm.WriteLine(etquietaInicioFOR + ":");
             match("for");
             match("(");
             Asignacion(evaluacion);
@@ -371,7 +383,7 @@ namespace Semantica
             string variable = getContenido();
             do
             {
-                validarFor = Condicion();
+                validarFor = Condicion("");
                 if (!evaluacion)
                 {
                     validarFor = evaluacion;
@@ -410,6 +422,7 @@ namespace Semantica
                 }
             }
             while (validarFor);
+            asm.WriteLine(etquietaFinFOR + ":");
         }
 
         //Incremento -> Identificador ++ | --
@@ -503,28 +516,37 @@ namespace Semantica
         }
 
         //Condicion -> Expresion operador relacional Expresion
-        private bool Condicion()
+        private bool Condicion(string etiqueta)
         {
             Expresion();
             string operador = getContenido();
             match(Tipos.OperadorRelacional);
             Expresion();
             float e2 = stack.Pop();
+            asm.WriteLine("pop BX");
             float e1 = stack.Pop();
+            asm.WriteLine("pop AX");
+            asm.WriteLine("CMP AX, BX");
             
             switch (operador)
             {
                 case "==":
+                    asm.WriteLine("JNE " + etiqueta);
                     return e1 == e2;
                 case ">":
+                    asm.WriteLine("JLE " + etiqueta);
                     return e1 > e2;
                 case "<":
+                    asm.WriteLine("JGE " + etiqueta);
                     return e1 < e2;
                 case ">=":
+                    asm.WriteLine("JL " + etiqueta);
                     return e1 >= e2;
                 case "<=":
+                    asm.WriteLine("JG " + etiqueta);
                     return e1 <= e2;
                 default:
+                    asm.WriteLine("JE " + etiqueta);
                     return e1 != e2;
             }
         }
@@ -536,7 +558,7 @@ namespace Semantica
             match("if");
             match("(");
             // Requerimiento 4 
-            bool validarIf = Condicion();
+            bool validarIf = Condicion(etquietaIF);
             if (!evaluacion)
             {
                 validarIf = evaluacion;
@@ -723,6 +745,9 @@ namespace Semantica
                     dominante = getTipo(getContenido());
                 }
                 stack.Push(getValor(getContenido()));
+                // Requerimiento 3 a)
+                // pasamos al siguiente token 
+
                 match(Tipos.Identificador);
             }
             else
