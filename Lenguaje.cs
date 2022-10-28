@@ -110,6 +110,7 @@ namespace Semantica
             Variables();
             Main();
             displayVariables();
+            asm.WriteLine("DEFINE_SCAN_NUM");
         }
 
         //Librerias -> #include<identificador(.h)?> Librerias?
@@ -606,6 +607,7 @@ namespace Semantica
                     setContenido(getContenido().Replace("\\\n", "\\n"));
                     Console.Write(getContenido());
                 }
+                asm.WriteLine("PRINTN \"" + getContenido() + "\"");
                 match(Tipos.Cadena);
             }
             else
@@ -615,6 +617,8 @@ namespace Semantica
                 if (evaluacion)
                 {
                     Console.Write(stack.Pop());
+                    // TODO Codigo ensamblador para imprimir una variable 
+
                 }
             }
             match(")");
@@ -644,9 +648,12 @@ namespace Semantica
                 {
                     throw new Error("Error de sintaxis: la variable debe ser un numero. \'" + val + "\' no es un numero. Error en linea: " + linea, log);
                 }
+                asm.WriteLine("CALL SCAN_NUM");
+                asm.WriteLine("MOV " + getContenido() + ", CX");
             }
             match(")");
             match(";");
+
         }
 
         //método que verifica si es numero en un try catch
