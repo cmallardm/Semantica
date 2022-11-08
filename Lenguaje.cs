@@ -1,13 +1,32 @@
 //  Carlos Mallard
+//Requerimiento 1.- Actualización: 
+//                   a) Agregar el residuo de la división en el porfactor 
+//                   b) Agregar en instruccion los incrementos de término y los incrementos de factor 
+//                      a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
+//                      en donde el 1 puede ser una expresión 
+//                   c) Programar el destructor
+//                      para ejecutar el metodo cerrarArchivo
+//                      #libreria especial? contenedor?
+//                      #en la clase lexico
 
+//Requerimiento 2.- Actualizacion 2
+//                   c) Marcar errores semanticos cuando los incrementos de termino
+//                      o icrementos de factor superen el rango de la variable
+//                   d) Considerar el inciso b) y c) para el for 
+//                   e) que funcione el do y el while
+
+//Requerimiento 3.- Agregar:
+//                   a) considerar las variables y los casteos de las expresiones matematicas en ensamblador
+//                   b) considerar el residuo de la división en ensamblador, el residuo de la division queda en dx 
 //                   c) Programar el printf y el scanf en ensamblador 
+
 // Requerimiento 4.- a) Programar el else en ensamblador 
 //                   b) Programar el for en ensamblador
+
 // Requerimiento 5.- a) Programar el while en ensamblador
 //                   b) Programar el do-while en ensamblador
 using System;
 using System.Collections.Generic;
-
 
 
 namespace Semantica
@@ -22,14 +41,16 @@ namespace Semantica
 
         int cIF;
         int cFOR;
+        int cWhile; 
+        int cDo;
         public Lenguaje()
         {
-            cIF = cFOR = 0;
+            cIF = cFOR = cWhile = cDo = 0;
 
         }
         public Lenguaje(string nombre) : base(nombre)
         {
-            cIF = cFOR = 0;
+            cIF = cFOR = cWhile = cDo = 0;
         }
 
         private void addVariable(String nombre, Variable.TipoDato tipo)
@@ -77,7 +98,7 @@ namespace Semantica
                     var = v.getValor();
                 }
             }
-            return var; // Al final del foreach 
+            return var;
         }
         private Variable.TipoDato getTipo(string nombreVariable)
         {
@@ -89,6 +110,27 @@ namespace Semantica
                 }
             }
             return Variable.TipoDato.Char; // nomás pa'que no marque error (porque nunca va a pasar, antes se levanta error)
+        }
+
+        private void VariablesAssembly()
+        {
+            asm.WriteLine(";Variables");
+            foreach (Variable v in variables)
+            {
+                asm.WriteLine("\t" + v.getNombre() + " DW ?");
+                switch (v.getTipo())
+                {
+                    case Variable.TipoDato.Char:
+                        asm.WriteLine("\t" + v.getNombre() + " DB " + v.getValor());
+                        break;
+                    case Variable.TipoDato.Int:
+                        asm.WriteLine("\t" + v.getNombre() + " DW " + v.getValor());
+                        break;
+                    case Variable.TipoDato.Float:
+                        asm.WriteLine("\t" + v.getNombre() + " DD " + v.getValor());
+                        break;
+                }
+            }
         }
 
         private float convert(float valor, string dato)
@@ -106,11 +148,19 @@ namespace Semantica
         //Programa  -> Librerias? Variables? Main
         public void Programa()
         {
+            asm.WriteLine("#make_COM");
+            asm.WriteLine("include 'emu8086.inc'");
+            asm.WriteLine("ORG 1000h");
             Libreria();
             Variables();
+            VariablesAssembly();
             Main();
             displayVariables();
+            asm.WriteLine("RET");
             asm.WriteLine("DEFINE_SCAN_NUM");
+            asm.WriteLine("DEFINE_PRINT_NUM");
+            asm.WriteLine("DEFINE_PRINT_STR");
+            asm.WriteLine("END");
         }
 
         //Librerias -> #include<identificador(.h)?> Librerias?
@@ -260,7 +310,7 @@ namespace Semantica
             {
                 return Variable.TipoDato.Float;
             }
-            else if (resultado <= 255)
+            if (resultado <= 255)
             {
                 return Variable.TipoDato.Char;
             }
@@ -289,12 +339,52 @@ namespace Semantica
                 throw new Error("Error : No existe la variable \'" + getContenido() + "\' en linea: " + linea, log);
 
             match(Tipos.Identificador);
-            match(Tipos.Asignacion);
             dominante = Variable.TipoDato.Char;
+
+            if (getClasificacion() == Tipos.IncrementoTermino || getClasificacion() == Tipos.IncrementoFactor)
+            {
+                string incrementoTipo = getContenido();
+                if (getClasificacion() == Tipos.IncrementoTermino)
+                {
+                    float resultados = incrementos(nombre, incrementoTipo);
+                    match(";");
+                    if (dominante < evaluaNumero(resultados))
+                    {
+                        dominante = evaluaNumero(resultados);
+                    }
+                    if (dominante <= getTipo(nombre))
+                    {
+                        modVariable(nombre, resultados);
+                    }
+                    else
+                    {
+                        throw new Error("Error de semanticó: variable <" + nombre + "> no se le puede asginar el valor <" + resultados + "> en linea " + linea, log);
+                    }
+                }
+                else
+                {
+                    float resultados = incrementos(nombre, incrementoTipo);
+                    match(";");
+                    if (dominante < evaluaNumero(resultados))
+                    {
+                        dominante = evaluaNumero(resultados);
+                    }
+                    if (dominante <= getTipo(nombre))
+                    {
+                        modVariable(nombre, resultados);
+                    }
+                    else
+                    {
+                        throw new Error("Error semántico: variable <" + nombre + "> no se le puede asiginar el valor <" + resultados + "> en linea " + linea, log);
+                    }
+                }
+            }
+            match(Tipos.Asignacion);
             Expresion();
             match(";");
 
             float resultado = stack.Pop();
+            asm.WriteLine("POP AX");
 
             log.Write("= " + resultado);
             log.WriteLine();
@@ -314,11 +404,58 @@ namespace Semantica
             {
                 throw new Error("Error de semantica: no podemos asignar un: <" + dominante + "> a un <" + getTipo(nombre) + "> en linea " + linea, log);
             }
-            
+
             asm.WriteLine("MOV " + nombre + ", AX");
 
         }
 
+        //b) Agregar en instruccion los incrementos de término y los incrementos de factor 
+        private float incrementos(string Variable, string tipoIncremento)
+        {
+            float resultado = getValor(Variable);
+            if (existeVariable(Variable))
+            {
+                switch (tipoIncremento)
+                {
+                    case "++":
+                        match("++");
+                        resultado++;
+                        break;
+                    case "--":
+                        match("--");
+                        resultado--;
+                        break;
+                    case "+=":
+                        match("+=");
+                        Expresion();
+                        resultado += stack.Pop();
+                        break;
+                    case "-=":
+                        match("-=");
+                        Expresion();asm.WriteLine("MOD AX, BX");
+                        asm.WriteLine("PUSH AX");
+                        break;
+                    case "*=":
+                        match("*=");
+                        Expresion();
+                        resultado *= stack.Pop();
+                        break;
+                    case "/=":
+                        match("/=");
+                        Expresion();
+                        resultado /= stack.Pop();
+                        break;
+                    case "%=":
+                        match("%=");
+                        Expresion();
+                        resultado %= stack.Pop();
+                        break;
+                }
+                return resultado;
+            }
+            return 0;
+
+        }
         // While -> while(Condicion) bloque de instrucciones | instruccion
         private void While(bool evaluacion)
         {
@@ -406,11 +543,11 @@ namespace Semantica
                 // d) Sacar otro valor de la pila
                 if (validarFor)
                 {
-                    if(sumaresta == 1)
+                    if (sumaresta == 1)
                     {
                         modVariable(variable, getValor(variable) + 1);
                     }
-                    else if(sumaresta == -1)
+                    else if (sumaresta == -1)
                     {
                         modVariable(variable, getValor(variable) - 1);
                     }
@@ -528,7 +665,7 @@ namespace Semantica
             float e1 = stack.Pop();
             asm.WriteLine("pop AX");
             asm.WriteLine("CMP AX, BX");
-            
+
             switch (operador)
             {
                 case "==":
@@ -715,15 +852,31 @@ namespace Semantica
                 Factor();
                 log.Write(operador + " ");
                 float n1 = stack.Pop();
+                asm.WriteLine("POP AX");
                 float n2 = stack.Pop();
+                asm.WriteLine("POP BX");
+                //Requerimient 1 a)
                 switch (operador)
                 {
                     case "*":
                         stack.Push(n2 * n1);
+                        asm.WriteLine("MUL BX");
+                        asm.WriteLine("PUSH AX");
                         break;
 
                     case "/":
-                        stack.Push(n2 / n1);
+                        //Requerimiento 1.a
+                        if (n1 != 0)
+                        {   
+                            //Obtener reciduo como un número 
+                            stack.Push(n2 / n1);
+                            asm.WriteLine("DIV BX");
+                            asm.WriteLine("PUSH AX");
+                        }
+                        else
+                        {
+                            throw new Error("Error de sintaxis: hay divisin entre cero en linea  " + linea, log);
+                        }
                         break;
                 }
             }

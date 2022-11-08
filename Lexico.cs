@@ -93,6 +93,7 @@ namespace Semantica
 
             string pathAsm = Path.ChangeExtension(nombre, ".asm");
             asm = new StreamWriter(pathAsm);
+            asm.AutoFlush = true;
             
             //log.WriteLine("Segundo constructor");
             log.WriteLine("Archivo: " + nombre);

@@ -9,28 +9,20 @@ namespace Semantica
     {
         static void Main(string[] args)
         {
-            try
+            static void instanciaObjeto()
             {
                 Lenguaje a = new Lenguaje();
                 a.Programa();
-
-                /*a.match("#");
-                a.match("include");
-                a.match("<");
-                a.match(Token.Tipos.Identificador);
-                a.match(".");
-                a.match("h");
-                a.match(">"); */
-                //while(!a.FinArchivo())
-                //{
-                //a.NextToken();
-                //}
+            }
+            try
+            {
+                instanciaObjeto();
+                GC.Collect();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-            
         }
     }
 }
