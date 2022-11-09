@@ -241,75 +241,75 @@ namespace Semantica
             match("main");
             match("(");
             match(")");
-            BloqueInstrucciones(true);
+            BloqueInstrucciones(true,true);
         }
         //Bloque de instrucciones -> {listaIntrucciones?}
-        private void BloqueInstrucciones(bool evaluacion)
+        private void BloqueInstrucciones(bool evaluacion, bool ASM)
         {
             match("{");
             if (getContenido() != "}")
             {
-                ListaInstrucciones(evaluacion);
+                ListaInstrucciones(evaluacion, ASM);
             }
             match("}");
         }
 
         //ListaInstrucciones -> Instruccion ListaInstrucciones?
-        private void ListaInstrucciones(bool evaluacion)
+        private void ListaInstrucciones(bool evaluacion, bool ASM)
         {
-            Instruccion(evaluacion);
+            Instruccion(evaluacion, ASM);
             if (getContenido() != "}")
             {
-                ListaInstrucciones(evaluacion);
+                ListaInstrucciones(evaluacion, ASM);
             }
         }
 
         //ListaInstruccionesCase -> Instruccion ListaInstruccionesCase?
-        private void ListaInstruccionesCase(bool evaluacion)
+        private void ListaInstruccionesCase(bool evaluacion, bool ASM)
         {
-            Instruccion(evaluacion);
+            Instruccion(evaluacion, ASM);
             if (getContenido() != "case" && getContenido() != "break" && getContenido() != "default" && getContenido() != "}")
             {
-                ListaInstruccionesCase(evaluacion);
+                ListaInstruccionesCase(evaluacion, ASM);
             }
         }
 
         //Instruccion -> Printf | Scanf | If | While | do while | For | Switch | Asignacion
         //Funcion que genera numeros aleatorios
 
-        private void Instruccion(bool evaluacion)
+        private void Instruccion(bool evaluacion, bool ASM)
         {
             if (getContenido() == "printf")
             {
-                Printf(evaluacion);
+                Printf(evaluacion, ASM);
             }
             else if (getContenido() == "scanf")
             {
-                Scanf(evaluacion);
+                Scanf(evaluacion, ASM);
             }
             else if (getContenido() == "if")
             {
-                If(evaluacion);
+                If(evaluacion, ASM);
             }
             else if (getContenido() == "while")
             {
-                While(evaluacion);
+                While(evaluacion, ASM);
             }
             else if (getContenido() == "do")
             {
-                Do(evaluacion);
+                Do(evaluacion, ASM);
             }
             else if (getContenido() == "for")
             {
-                For(evaluacion);
+                For(evaluacion, ASM);
             }
             else if (getContenido() == "switch")
             {
-                Switch(evaluacion);
+                Switch(evaluacion, ASM);
             }
             else
             {
-                Asignacion(evaluacion);
+                Asignacion(evaluacion, ASM);
             }
         }
 
@@ -336,7 +336,7 @@ namespace Semantica
         }
 
         //Asignacion -> identificador = cadena | Expresion;
-        private void Asignacion(bool evaluacion)
+        private void Asignacion(bool evaluacion, bool ASM)
         {
 
             log.WriteLine();
@@ -470,7 +470,7 @@ namespace Semantica
 
         }
         // While -> while(Condicion) bloque de instrucciones | instruccion
-        private void While(bool evaluacion)
+        private void While(bool evaluacion, bool ASM)
         {
             match("while");
             match("(");
@@ -492,11 +492,11 @@ namespace Semantica
                 match(")");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(validarWhile);
+                    BloqueInstrucciones(validarWhile, ASM);
                 }
                 else
                 {
-                    Instruccion(evaluacion);
+                    Instruccion(evaluacion, ASM);
                 }
                 if (validarWhile)
                 {
@@ -512,7 +512,7 @@ namespace Semantica
         }
 
         // Do -> do bloque de instrucciones | intruccion while(Condicion)
-        private void Do(bool evaluacion)
+        private void Do(bool evaluacion, bool ASM)
         {
             match("do");
 
@@ -527,11 +527,11 @@ namespace Semantica
             {
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(evaluacion);
+                    BloqueInstrucciones(evaluacion, ASM);
                 }
                 else
                 {
-                    Instruccion(evaluacion);
+                    Instruccion(evaluacion, ASM);
                 }
                 match("while");
                 match("(");
@@ -557,7 +557,7 @@ namespace Semantica
             } while (validarDo);
         }
         // For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
-        private void For(bool evaluacion)
+        private void For(bool evaluacion, bool ASM)
         {
             string etquietaInicioFOR = "inicioFor" + cFOR;
             string etquietaFinFOR = "finFor" + cFOR++;
@@ -566,7 +566,7 @@ namespace Semantica
 
             match("for");
             match("(");
-            Asignacion(evaluacion);
+            Asignacion(evaluacion, ASM);
             // Requerimiento 4
             // Requerimiento 6:
             // a) Necesito guardar la posición del archivo del texto
@@ -594,11 +594,11 @@ namespace Semantica
                 match(")");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(validarFor);
+                    BloqueInstrucciones(validarFor, ASM);
                 }
                 else
                 {
-                    Instruccion(validarFor);
+                    Instruccion(validarFor, ASM);
                 }
                 // c) Regresar a la posicion de lectura del archivo
                 // d) Sacar otro valor de la pila
@@ -626,7 +626,7 @@ namespace Semantica
         }
 
         //Incremento -> Identificador ++ | --
-        private void incremento(bool evaluacion)
+        private void incremento(bool evaluacion, bool ASM)
         {
             string variable = getContenido();
             //Requerimiento 2.- Si no existe la variable levanta la excepcion
@@ -653,7 +653,7 @@ namespace Semantica
         }
 
         //Switch -> switch (Expresion) {Lista de casos} | (default: )
-        private void Switch(bool evaluacion)
+        private void Switch(bool evaluacion, bool ASM)
         {
             match("switch");
             match("(");
@@ -662,32 +662,32 @@ namespace Semantica
             asm.WriteLine("POP AX");
             match(")");
             match("{");
-            ListaDeCasos(evaluacion);
+            ListaDeCasos(evaluacion, ASM);
             if (getContenido() == "default")
             {
                 match("default");
                 match(":");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(evaluacion);
+                    BloqueInstrucciones(evaluacion, ASM);
                 }
                 else
                 {
-                    Instruccion(evaluacion);
+                    Instruccion(evaluacion, ASM);
                 }
             }
             match("}");
         }
 
         //ListaDeCasos -> case Expresion: listaInstruccionesCase (break;)? (ListaDeCasos)?
-        private void ListaDeCasos(bool evaluacion)
+        private void ListaDeCasos(bool evaluacion, bool ASM)
         {
             match("case");
             Expresion();
             stack.Pop();
             asm.WriteLine("POP AX");
             match(":");
-            ListaInstruccionesCase(evaluacion);
+            ListaInstruccionesCase(evaluacion, ASM);
             if (getContenido() == "break")
             {
                 match("break");
@@ -695,7 +695,7 @@ namespace Semantica
             }
             if (getContenido() == "case")
             {
-                ListaDeCasos(evaluacion);
+                ListaDeCasos(evaluacion, ASM);
             }
         }
 
@@ -737,7 +737,7 @@ namespace Semantica
         }
 
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
-        private void If(bool evaluacion)
+        private void If(bool evaluacion, bool ASM)
         {
             string etquietaIF = "if" + ++cIF;
             string etquietaELSE = "else" + cIF;
@@ -753,11 +753,11 @@ namespace Semantica
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones(validarIf);
+                BloqueInstrucciones(validarIf, ASM);
             }
             else
             {
-                Instruccion(validarIf);
+                Instruccion(validarIf, ASM);
             }
             asm.WriteLine("JMP Fin " + cIF);
             if (getContenido() == "else")
@@ -767,11 +767,11 @@ namespace Semantica
                 // Requerimiento 4
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(!validarIf);
+                    BloqueInstrucciones(!validarIf, ASM);
                 }
                 else
                 {
-                    Instruccion(!validarIf);
+                    Instruccion(!validarIf, ASM);
                 }
                 asm.WriteLine("JMP Fin" + cIF);
             }
@@ -781,7 +781,7 @@ namespace Semantica
         }
 
         //Printf -> printf(cadena|expresion);
-        private void Printf(bool evaluacion)
+        private void Printf(bool evaluacion, bool ASM)
         {
             match("printf");
             match("(");
@@ -816,7 +816,7 @@ namespace Semantica
             match(";");
         }
         //Scanf -> scanf(cadena, &Identificador);
-        private void Scanf(bool evaluacion)
+        private void Scanf(bool evaluacion, bool ASM)
         {
             match("scanf");
             match("(");

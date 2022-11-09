@@ -1,5 +1,18 @@
 Archivo: prueba.cpp
-11/9/2022 12:18:28 AM
+11/9/2022 2:27:51 AM
 
-i = 1 = 1
-i 
+
+variables: 
+area Float 0
+radio Float 0
+pi Float 0
+resultado Float 0
+a Int 0
+d Int 0
+altura Int 0
+x Float 0
+y Int 0
+i Int 0
+j Int 0
+k Int 0
+l Int 0
