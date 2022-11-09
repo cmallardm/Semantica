@@ -1,4 +1,5 @@
 // Carlos Mallard
+/*
 #include <iostream>
 float area, radio, pi, resultado;
 int a, d, altura;
@@ -11,11 +12,18 @@ void main(){
 
 char y; int i ;int j, k;
 // Este programa calcula el volumen de un cilindro.
+*/
 
+#include <iostream>
+#include <stdio.h>
+#include <conio.h>
+float area, radio, pi, resultado;
+int a, d, altura, cinco;
+float x;
+char y; int i ;int j, k;
+// Este programa calcula el volumen de un cilindro.
 
-
-
-/*void main(){
+void main(){
 
     //Requerimiento 5.- Levanta una excepcion en el scanf si la captura no es un numero
     printf("Introduce la altura de la piramide: ");
@@ -39,7 +47,7 @@ char y; int i ;int j, k;
         do
         {
             printf("-");
-            k += 2; 
+            k += 2; v
         } while(k < altura*2);
         printf("\n"); 
     }else
@@ -59,4 +67,3 @@ char y; int i ;int j, k;
     printf("\nA continuacion se intenta asignar un int a un char sin usar casteo: \n");
     //y = a; //Requerimiento 1.- debe marcar error 
 }
-*/

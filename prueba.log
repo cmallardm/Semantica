@@ -1,18 +1,8 @@
 Archivo: prueba.cpp
-11/9/2022 2:27:51 AM
-
-
-variables: 
-area Float 0
-radio Float 0
-pi Float 0
-resultado Float 0
-a Int 0
-d Int 0
-altura Int 0
-x Float 0
-y Int 0
-i Int 0
-j Int 0
-k Int 0
-l Int 0
+11/9/2022 5:40:14 AM
+altura 2 
+i = altura = 0
+i 0 1 
+j = 0 = 0
+j altura i - j 2 % 0 
+j = 1 Error de sintaxis, se espera un Asignacion en linea: 43

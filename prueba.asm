@@ -1,37 +1,71 @@
-#make_COM
-include 'emu8086.inc'
-ORG 1000h
-;Variables
-	area DW ?
-	area DD 0
-	radio DW ?
-	radio DD 0
-	pi DW ?
-	pi DD 0
-	resultado DW ?
-	resultado DD 0
-	a DW ?
-	a DW 0
-	d DW ?
-	d DW 0
-	altura DW ?
-	altura DW 0
-	x DW ?
-	x DD 0
-	y DW ?
-	y DW 0
-	i DW ?
-	i DW 0
-	j DW ?
-	j DW 0
-	k DW ?
-	k DW 0
-	l DW ?
-	l DW 0
-PRINTN "Introduzca el radio del cilindro: "
-RET
-DEFINE_SCAN_NUM
-DEFINE_PRINT_NUM
-DEFINE_PRINT_NUM_UNS
-DEFINE_PRINT_STR
-END
+#make_COM#
+include emu8086.inc
+ORG 100h
+PRINTN "Introduce la altura de la piramide: "
+CALL SCAN_NUM
+MOV if, CX
+MOV AX,altura
+PUSH AX
+MOV AX,2
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JLE if0
+MOV AX,altura
+PUSH AX
+POP AX
+MOV i, AX
+inicioFor1:
+MOV AX,i
+PUSH AX
+MOV AX,0
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JLE finFor1
+MOV AX,1
+PUSH AX
+MOV AX,0
+PUSH AX
+POP AX
+MOV j, AX
+MOV AX,j
+PUSH AX
+MOV AX,altura
+PUSH AX
+MOV AX,i
+PUSH AX
+POP AX
+POP BX
+SUB AX, BX
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JGE WHILE0:
+MOV AX,j
+PUSH AX
+MOV AX,2
+PUSH AX
+POP AX
+POP BX
+DIV BX
+PUSH DX
+MOV AX,0
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JNE if1
+JMP Fin2
+else2:
+PRINTN "-"
+JMP Fin2
+if1:
+JMP Fin else2
+Fin 2:
+MOV AX,1
+PUSH AX
+POP AXADD j, AXMOV j, AX
