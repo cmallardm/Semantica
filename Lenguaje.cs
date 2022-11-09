@@ -167,6 +167,7 @@ namespace Semantica
             asm.WriteLine("RET");
             asm.WriteLine("DEFINE_SCAN_NUM");
             asm.WriteLine("DEFINE_PRINT_NUM");
+            asm.WriteLine("DEFINE_PRINT_NUM_UNS");
             asm.WriteLine("DEFINE_PRINT_STR");
             asm.WriteLine("END");
         }
@@ -554,7 +555,7 @@ namespace Semantica
                 }
 
             } while (validarDo);
-            }
+        }
         // For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
         private void For(bool evaluacion)
         {
@@ -739,6 +740,7 @@ namespace Semantica
         private void If(bool evaluacion)
         {
             string etquietaIF = "if" + ++cIF;
+            string etquietaELSE = "else" + cIF;
 
             match("if");
             match("(");
@@ -757,9 +759,11 @@ namespace Semantica
             {
                 Instruccion(validarIf);
             }
+            asm.WriteLine("JMP Fin " + cIF);
             if (getContenido() == "else")
             {
                 match("else");
+                asm.WriteLine(etquietaELSE + ":");
                 // Requerimiento 4
                 if (getContenido() == "{")
                 {
@@ -769,8 +773,11 @@ namespace Semantica
                 {
                     Instruccion(!validarIf);
                 }
+                asm.WriteLine("JMP Fin" + cIF);
             }
             asm.WriteLine(etquietaIF + ":");
+            asm.WriteLine("JMP Fin " + etquietaELSE);
+            asm.WriteLine("Fin " + cIF + ":");
         }
 
         //Printf -> printf(cadena|expresion);
@@ -797,11 +804,12 @@ namespace Semantica
             {
                 Expresion();
                 float resultado = stack.Pop();
+                asm.WriteLine("POP AX");
+                asm.WriteLine("PRINT_NUM AX");
                 if (evaluacion)
                 {
                     Console.Write(stack.Pop());
-                    // TODO Codigo ensamblador para imprimir una variable 
-
+                    // TODO Codigo ensamblador para imprimir una variable
                 }
             }
             match(")");
@@ -996,8 +1004,11 @@ namespace Semantica
                 match(")");
                 if (huboCasteo)
                 {
-                    float variable = stack.Pop();
                     dominante = casteo;
+                    float variable = stack.Pop();
+
+                    asm.WriteLine("POP AX");
+
                     stack.Push(convert(variable, casteo.ToString()));
 
                     // Requerimiento 2.- Saco un elemento del stack
