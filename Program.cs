@@ -14,6 +14,7 @@ namespace Semantica
                 Lenguaje a = new Lenguaje();
                 a.Programa();
             }
+            
             try
             {
                 instanciaObjeto();

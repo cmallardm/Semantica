@@ -28,5 +28,7 @@ ORG 1000h
 	k DW 0
 	l DW ?
 	l DW 0
+MOV AX,1
+PUSH AX
 POP AX
 MOV i, AX

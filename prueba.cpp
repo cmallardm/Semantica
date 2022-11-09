@@ -8,6 +8,4 @@ int y;int i ;int j;int k;int l;
 void main(){
     i = 1;
     printf(i);
-    printf("\n");
-    i += 1+3;
-    printf(i);
+    }
