@@ -11,7 +11,7 @@ PUSH AX
 POP AX
 POP BX
 CMP AX, BX
-JLE if0
+JLE if1
 MOV AX,altura
 PUSH AX
 POP AX
@@ -31,6 +31,7 @@ MOV AX,0
 PUSH AX
 POP AX
 MOV j, AX
+WHILE0:
 MOV AX,j
 PUSH AX
 MOV AX,altura
@@ -58,14 +59,123 @@ PUSH AX
 POP AX
 POP BX
 CMP AX, BX
-JNE if1
-JMP Fin2
+JNE if2
+JMP fin2
 else2:
 PRINTN "-"
-JMP Fin2
-if1:
+JMPfin2
+if2:
 JMP Fin else2
-Fin 2:
+fin2:
 MOV AX,1
 PUSH AX
 POP AXADD j, AXMOV j, AX
+JMP WHILE0:
+FINWHILE0:
+POP AXADD j, AXMOV j, AX
+JMP inicioFor1
+finFor1:
+MOV AX,0
+PUSH AX
+POP AX
+MOV k, AX
+DO0:
+MOV AX,2
+PUSH AX
+POP AXADD k, AXMOV k, AX
+MOV AX,k
+PUSH AX
+MOV AX,altura
+PUSH AX
+MOV AX,2
+PUSH AX
+POP AX
+POP BX
+MUL BX
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JGE FINDO0:
+JMP DO0:
+FINDO0:
+JMP fin1
+else1:
+PRINTN "
+Error: la altura debe de ser mayor que 2
+"
+JMPfin1
+if1:
+JMP Fin else1
+fin1:
+MOV AX,1
+PUSH AX
+MOV AX,1
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JE if3
+MOV AX,2
+PUSH AX
+MOV AX,2
+PUSH AX
+POP AX
+POP BX
+CMP AX, BX
+JNE if4
+JMP fin4
+if4:
+JMP Fin else4
+fin4:
+JMP fin3
+if3:
+JMP Fin else3
+fin3:
+MOV AX,258
+PUSH AX
+POP AX
+MOV a, AX
+PRINTN "Valor de variable int 'a' antes del casteo: "
+MOV AX,a
+PUSH AX
+POP AX
+PRINT_NUM AX
+CALL PRINT_NUM
+MOV AX,a
+PUSH AX
+POP AX
+MOV AL, AH
+PUSH AX
+POP AX
+MOV y, AX
+PRINTN "
+Valor de variable char 'y' despues del casteo de a: "
+MOV AX,y
+PUSH AX
+POP AX
+PRINT_NUM AX
+CALL PRINT_NUM
+PRINTN "
+A continuacion se intenta asignar un int a un char sin usar casteo: 
+"
+
+;Variables
+	area DW 0
+	radio DW 0
+	pi DW 0
+	resultado DW 0
+	a DW 258
+	d DW 0
+	altura DW 0
+	cinco DW 0
+	x DW 0
+	y DW 2
+	i DW 0
+	j DW 1
+	k DW 2
+RET
+DEFINE_SCAN_NUM
+DEFINE_PRINT_NUM
+DEFINE_PRINT_NUM_UNS
+END

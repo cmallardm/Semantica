@@ -129,13 +129,13 @@ namespace Semantica
                 switch (v.getTipo())
                 {
                     case Variable.TipoDato.Char:
-                        asm.WriteLine("\t" + v.getNombre() + " DW ?" + v.getValor());
+                        asm.WriteLine("\t" + v.getNombre() + " DW " + v.getValor());
                         break;
                     case Variable.TipoDato.Int:
-                        asm.WriteLine("\t" + v.getNombre() + " DW ?" + v.getValor());
+                        asm.WriteLine("\t" + v.getNombre() + " DW " + v.getValor());
                         break;
                     case Variable.TipoDato.Float:
-                        asm.WriteLine("\t" + v.getNombre() + " DW ?" + v.getValor());
+                        asm.WriteLine("\t" + v.getNombre() + " DW " + v.getValor());
                         break;
                 }
             }
@@ -344,6 +344,7 @@ namespace Semantica
 
             string nombre = getContenido();
 
+
             if (!existeVariable(getContenido()))
                 throw new Error("Error : No existe la variable \'" + getContenido() + "\' en linea: " + linea, log);
 
@@ -354,88 +355,66 @@ namespace Semantica
             {
                 string incrementoTipo = getContenido();
 
-                if (getClasificacion() == Tipos.IncrementoTermino)
+                float resultados = incrementos(nombre, incrementoTipo, ASM);
+
+                match(";");
+
+                if (dominante < evaluaNumero(resultados))
                 {
-                    float resultados = incrementos(nombre, incrementoTipo, ASM);
-
-                    match(";");
-
-                    if (dominante < evaluaNumero(resultados))
+                    dominante = evaluaNumero(resultados);
+                }
+                if (dominante <= getTipo(nombre))
+                {
+                    modVariable(nombre, resultados);
+                    if (ASM)
                     {
-                        dominante = evaluaNumero(resultados);
-                    }
-                    if (dominante <= getTipo(nombre))
-                    {
-                        modVariable(nombre, resultados);
-                        if (ASM)
-                        {
-                            asm.WriteLine(incrementoGlobal);
-                        }
-                    }
-                    else
-                    {
-                        throw new Error("Error de semántico: variable <" + nombre + "> no se le puede asginar el valor <" + resultados + "> en linea " + linea, log);
+                        asm.WriteLine(incrementoGlobal);
                     }
                 }
                 else
                 {
-                    float resultados = incrementos(nombre, incrementoTipo, ASM);
-                    match(";");
-                    if (dominante < evaluaNumero(resultados))
-                    {
-                        dominante = evaluaNumero(resultados);
-                    }
-                    if (dominante <= getTipo(nombre))
-                    {
-                        modVariable(nombre, resultados);
-
-                        if (ASM)
-                        {
-                            asm.WriteLine(incrementoGlobal);
-                        }
-
-                    }
-                    else
-                    {
-                        throw new Error("Error semántico: variable <" + nombre + "> no se le puede asiginar el valor <" + resultados + "> en linea " + linea, log);
-                    }
+                    throw new Error("Error de semántico: variable <" + nombre + "> no se le puede asginar el valor <" + resultados + "> en linea " + linea, log);
                 }
-            }
 
-            match(Tipos.Asignacion);
-            Expresion(ASM);
-            match(";");
-
-            float resultado = stack.Pop();
-
-            if (ASM)
-            {
-                asm.WriteLine("POP AX");
-            }
-
-            log.Write("= " + resultado);
-            log.WriteLine();
-
-            if (dominante < evaluaNumero(resultado))
-            {
-                dominante = evaluaNumero(resultado);
-            }
-            if (dominante <= getTipo(nombre))
-            {
-                if (evaluacion)
-                {
-                    modVariable(nombre, resultado);
-                }
             }
             else
             {
-                throw new Error("Error de semantica: no podemos asignar un: <" + dominante + "> a un <" + getTipo(nombre) + "> en linea " + linea, log);
+                match(Tipos.Asignacion);
+                Expresion(ASM);
+                match(";");
+
+                float resultado = stack.Pop();
+
+                if (ASM)
+                {
+                    asm.WriteLine("POP AX");
+                }
+
+                log.Write("= " + resultado);
+                log.WriteLine();
+
+                if (dominante < evaluaNumero(resultado))
+                {
+                    dominante = evaluaNumero(resultado);
+                }
+                if (dominante <= getTipo(nombre))
+                {
+                    if (evaluacion)
+                    {
+                        modVariable(nombre, resultado);
+                    }
+                }
+                else
+                {
+                    throw new Error("Error de semantica: no podemos asignar un: <" + dominante + "> a un <" + getTipo(nombre) + "> en linea " + linea, log);
+                }
+
+                if (ASM)
+                {
+                    asm.WriteLine("MOV " + nombre + ", AX");
+                }
             }
 
-            if (ASM)
-            {
-                asm.WriteLine("MOV " + nombre + ", AX");
-            }
         }
 
         //b) Agregar en instruccion los incrementos de término y los incrementos de factor 
@@ -474,7 +453,6 @@ namespace Semantica
                         break;
                     case "*=":
                         match("*=");
-
                         incrementoGlobal = "POP AX";
                         incrementoGlobal += "MUL " + Variable + ", AX";
                         incrementoGlobal += "MOV " + Variable + ", AX";
@@ -564,15 +542,15 @@ namespace Semantica
         private void Do(bool evaluacion, bool ASM)
         {
             match("do");
-
-            bool validarDo = Condicion("", ASM);
+            
+            bool validarDo;
 
             int posicionGuardada = contador;
             int lineaGuardada = linea;
 
             string etiquetaIinicnioDO = "DO" + cDo + ":";
             string etiquetaFinDO = "FINDO" + cDo + ":";
-
+            
             if (ASM)
             {
                 asm.WriteLine(etiquetaIinicnioDO);
@@ -848,7 +826,7 @@ namespace Semantica
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
         private void If(bool evaluacion, bool ASM)
         {
-            
+
             if (ASM)
             {
                 cIF++;
@@ -946,8 +924,11 @@ namespace Semantica
                 }
                 if (evaluacion)
                 {
-                    Console.Write(stack.Pop());
                     // TODO Codigo ensamblador para imprimir una variable
+                    if (ASM)
+                    {
+                        asm.WriteLine("CALL PRINT_NUM");
+                    }
                 }
             }
             match(")");

@@ -25,6 +25,7 @@ char y; int i ;int j, k;
 
 void main(){
 
+
     //Requerimiento 5.- Levanta una excepcion en el scanf si la captura no es un numero
     printf("Introduce la altura de la piramide: ");
     scanf("altura", &altura);
@@ -44,10 +45,10 @@ void main(){
             printf("\n");
         }
         k = 0; 
-        do
+        do 
         {
             printf("-");
-            k += 2; v
+            k += 2; 
         } while(k < altura*2);
         printf("\n"); 
     }else
